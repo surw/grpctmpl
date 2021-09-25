@@ -4,8 +4,8 @@ go 1.17
 
 require (
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
-	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.6.0
+	github.com/soheilhy/cmux v0.1.5
 	google.golang.org/grpc v1.41.0
 )
 
