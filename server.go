@@ -26,9 +26,10 @@ func New(port int) *server {
 	}
 	return &newServer
 }
-func (s *server) RegisterHTTPGW(registerFunc func(mux *runtime.ServeMux, endpoint string) (err error)) error {
+func (s *server) Register(grpcRegister func(srv grpc.ServiceRegistrar) , httpRegister func(mux *runtime.ServeMux, endpoint string) (err error)) error {
 	grpcServer := grpc.NewServer()
 	grpc_prometheus.Register(grpcServer)
 
-	return registerFunc(s.mux, fmt.Sprintf(":%d", s.port))
+	grpcRegister(grpcServer)
+	return httpRegister(s.mux, fmt.Sprintf(":%d", s.port))
 }
