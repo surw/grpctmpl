@@ -2,7 +2,9 @@ package grpctmpl
 
 import (
 	"fmt"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"google.golang.org/grpc"
 )
 
 type server struct {
@@ -25,5 +27,8 @@ func New(port int) *server {
 	return &newServer
 }
 func (s *server) RegisterHTTPGW(registerFunc func(mux *runtime.ServeMux, endpoint string) (err error)) error {
+	grpcServer := grpc.NewServer()
+	grpc_prometheus.Register(grpcServer)
+
 	return registerFunc(s.mux, fmt.Sprintf(":%d", s.port))
 }
