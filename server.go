@@ -3,16 +3,18 @@ package grpctmpl
 import (
 	"context"
 	"fmt"
+	"log"
+	"net"
+	"net/http"
+
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/soheilhy/cmux"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
-	"log"
-	"net"
-	"net/http"
 )
 
 type server struct {
@@ -79,6 +81,7 @@ func New(port int) *server {
 func (s *server) Register(grpcRegister func(srv grpc.ServiceRegistrar), httpRegister func(mux *runtime.ServeMux, endpoint string) (err error)) error {
 	s.grpcS = grpc.NewServer()
 	grpcRegister(s.grpcS)
+	reflection.Register(s.grpcS)
 	//grpc_prometheus.Register(s.grpcS)
 
 	return httpRegister(s.mux, fmt.Sprintf(":%d", s.port))
@@ -115,7 +118,7 @@ func (s *server) Serve() error {
 	mux.Handle("/help/", http.StripPrefix("/help", fs))
 
 	httpS := &http.Server{
-		Handler:   h2c.NewHandler(mux, &http2.Server{}),
+		Handler: h2c.NewHandler(mux, &http2.Server{}),
 	}
 
 	//go httpS.ServeTLS(httpL, "cert", "private")
