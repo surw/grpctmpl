@@ -7,10 +7,12 @@ import (
 	"net"
 	"net/http"
 
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"go.elastic.co/apm/module/apmgrpc"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/soheilhy/cmux"
+	"github.com/surw/grpctmpl/server_interceptors"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
@@ -81,9 +83,15 @@ func New(port int) *server {
 	return &newServer
 }
 func (s *server) Register(grpcRegister func(srv grpc.ServiceRegistrar), httpRegister func(mux *runtime.ServeMux, endpoint string) (err error)) error {
-	s.grpcS = grpc.NewServer(grpc.UnaryInterceptor(
-		apmgrpc.NewUnaryServerInterceptor(apmgrpc.WithRecovery()),
-	))
+	s.grpcS = grpc.NewServer(
+		grpc.UnaryInterceptor(
+			grpc_middleware.ChainUnaryServer(
+				apmgrpc.NewUnaryServerInterceptor(apmgrpc.WithRecovery()),
+				server_interceptors.LogInterceptor(),
+			),
+		),
+	)
+
 	grpcRegister(s.grpcS)
 	reflection.Register(s.grpcS)
 	//grpc_prometheus.Register(s.grpcS)

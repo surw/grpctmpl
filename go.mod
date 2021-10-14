@@ -3,9 +3,12 @@ module github.com/surw/grpctmpl
 go 1.17
 
 require (
+	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.6.0
+	github.com/sirupsen/logrus v1.8.1
 	github.com/soheilhy/cmux v0.1.5
 	go.elastic.co/apm/module/apmgrpc v1.14.0
+	go.elastic.co/apm/module/apmlogrus v1.14.0
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4
 	google.golang.org/grpc v1.41.0
 	google.golang.org/protobuf v1.27.1
