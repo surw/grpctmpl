@@ -7,6 +7,8 @@ import (
 	"net"
 	"net/http"
 
+	"go.elastic.co/apm/module/apmgrpc"
+
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/soheilhy/cmux"
 	"golang.org/x/net/http2"
@@ -79,7 +81,9 @@ func New(port int) *server {
 	return &newServer
 }
 func (s *server) Register(grpcRegister func(srv grpc.ServiceRegistrar), httpRegister func(mux *runtime.ServeMux, endpoint string) (err error)) error {
-	s.grpcS = grpc.NewServer()
+	s.grpcS = grpc.NewServer(grpc.UnaryInterceptor(
+		apmgrpc.NewUnaryServerInterceptor(apmgrpc.WithRecovery()),
+	))
 	grpcRegister(s.grpcS)
 	reflection.Register(s.grpcS)
 	//grpc_prometheus.Register(s.grpcS)
